@@ -5,9 +5,7 @@ import no.gjensidige.product.entity.Product;
 import no.gjensidige.product.exception.ProductNotFoundException;
 import no.gjensidige.product.repository.ProductRepository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -19,8 +17,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProductServiceTest {
 
@@ -38,6 +35,88 @@ public class ProductServiceTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void createProduct(){
+        ProductDTO inputProductDTO = new ProductDTO();
+        inputProductDTO.setCategory("Hardware");
+        inputProductDTO.setProductName("Seagate Baracuda 500GB");
+        inputProductDTO.setNumbersold(BigInteger.valueOf(200));
+        inputProductDTO.setUnitPrice(55.50);
+
+        Product expectedProduct = mm.map(inputProductDTO, Product.class);
+
+        when(modelMapper.map(inputProductDTO, Product.class)).thenReturn(expectedProduct);
+        when(productRepository.save(any(Product.class))).thenReturn(expectedProduct);
+
+        // Should return the Product of the dto
+        Product actualProduct = productService.createProduct(inputProductDTO);
+
+        verify(productRepository).save(actualProduct);
+
+        assertNotNull(actualProduct);
+        assertEquals(expectedProduct.getId(), actualProduct.getId());
+        assertEquals(expectedProduct, actualProduct);
+    }
+
+
+    @Test
+    public void updateProduct(){
+        Long id = 1L;
+
+        Product existingProduct = new Product();
+        existingProduct.setId(id);
+        existingProduct.setCategory("Hardware");
+        existingProduct.setProductName("Seagate Baracuda 500GB");
+        existingProduct.setNumberSold(BigInteger.valueOf(200));
+        existingProduct.setUnitPrice(55.50);
+
+        ProductDTO inputProductDTO = new ProductDTO();
+        inputProductDTO.setId(id);
+        inputProductDTO.setCategory("Hardware 2.0");
+        inputProductDTO.setProductName("Seagate Baracuda 500GB");
+        inputProductDTO.setNumbersold(BigInteger.valueOf(300));
+        inputProductDTO.setUnitPrice(65.50);
+
+        // Mock mapping of dto to existing product
+        mm.map(inputProductDTO, existingProduct);
+
+        // If mapping is done correctly, the updated product should have the new fields
+        Product expectedProduct = mm.map(inputProductDTO, Product.class);
+
+        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
+        when(modelMapper.map(inputProductDTO, Product.class)).thenReturn(expectedProduct);
+        when(productRepository.save(any(Product.class))).thenReturn(existingProduct);
+
+        Product actualProduct = productService.updateProduct(id, inputProductDTO);
+
+        verify(productRepository).findById(id);
+        verify(productRepository).save(actualProduct);
+
+        assertNotNull(actualProduct);
+        assertEquals(expectedProduct.getCategory(), actualProduct.getCategory());
+        assertEquals(expectedProduct.getNumberSold(), actualProduct.getNumberSold());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateProduct_WithNullDTO_ThrowsException(){
+        productService.updateProduct(1L, null);
+        fail("Did not throw IllegalArgumentException");
+    }
+
+    @Test(expected = ProductNotFoundException.class)
+    public void updateProduct_NotFound_ThrowsException(){
+        ProductDTO inputProductDTO = new ProductDTO();
+        inputProductDTO.setId(1L);
+        Optional<Product> op = Optional.empty();
+
+        when(productRepository.findById(anyLong())).thenReturn(op);
+
+        productService.updateProduct(1L, inputProductDTO);
+
+        verify(productRepository).findById(1L);
+        fail("Did not throw ProductNotFoundException");
     }
 
     @Test
@@ -122,7 +201,7 @@ public class ProductServiceTest {
         productDTO.setCategory("Hardware");
         productDTO.setProductName("Seagate Baracuda 500GB");
         productDTO.setNumbersold(BigInteger.valueOf(200));
-        productDTO.setPrice(55.50);
+        productDTO.setUnitPrice(55.50);
 
         when(modelMapper.map(productDTO,Product.class)).thenReturn(mm.map(productDTO,Product.class));
         Product product = productService.convertToEntity(productDTO);

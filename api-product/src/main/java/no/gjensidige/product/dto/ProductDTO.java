@@ -61,7 +61,7 @@ public class ProductDTO {
         return unitPrice;
     }
 
-    public void setPrice(Double unitPrice) {
+    public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
 
