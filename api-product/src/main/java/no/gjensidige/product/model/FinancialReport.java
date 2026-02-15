@@ -16,9 +16,14 @@ public class FinancialReport {
     Product highestMarginProduct;
     Product lowestMarginProduct;
     Product mostSoldProduct;
+    Product leastSoldProduct;
     Double totalTurnover;
     Double totalCost;
     Double totalMargin;
+
+    public Timestamp getCreatedTime() {
+        return this.created = new Timestamp(System.currentTimeMillis());
+    }
 
     public Product getHighestMarginProduct() {
         return highestMarginProduct;
@@ -47,6 +52,10 @@ public class FinancialReport {
     public Double getTotalTurnover() {
         return totalTurnover;
     }
+
+    public Product getLeastSoldProduct(){return leastSoldProduct;}
+
+    public void setLeastSoldProduct(Product leastSoldProduct){this.leastSoldProduct = leastSoldProduct;}
 
     public void setTotalTurnover(Double totalTurnover) {
         this.totalTurnover = totalTurnover;
