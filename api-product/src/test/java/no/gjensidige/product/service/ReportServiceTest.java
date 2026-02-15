@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void createFinancialReport(){
+    public void generateFinancialReport(){
         Product product = productList.get(0);
 
         Double expectedTotalTurnover =
@@ -70,12 +71,18 @@ public class ReportServiceTest {
 
         when(productRepository.findAll()).thenReturn(productList);
 
-        FinancialReport actualReport = reportService.createFinancialReport();
+        FinancialReport actualReport = reportService.generateFinancialReport();
 
         verify(productRepository).findAll();
 
         assertEquals(expectedReport.getCreatedTime(), actualReport.getCreatedTime());
         assertEquals(expectedReport.getHighestMarginProduct(), actualReport.getHighestMarginProduct());
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void generateFinancialReport_WithEmptyProductList_ThrowsException(){
+        reportService.generateFinancialReport();
+        fail("Did not throw NoSuchElementException");
     }
 
     @Test

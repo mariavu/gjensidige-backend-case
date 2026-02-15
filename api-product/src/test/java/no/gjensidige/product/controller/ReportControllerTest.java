@@ -62,11 +62,11 @@ public class ReportControllerTest {
         expectedReport.setTotalMargin(expectedTotalMargin);
         expectedReport.setTotalTurnover(expectedTotalTurnover);
 
-        when(reportService.createFinancialReport()).thenReturn(expectedReport);
+        when(reportService.generateFinancialReport()).thenReturn(expectedReport);
 
         FinancialReport actualReport = reportController.getFinancialReport();
 
-        verify(reportService).createFinancialReport();
+        verify(reportService).generateFinancialReport();
 
         assertEquals(expectedReport.getCreatedTime(), actualReport.getCreatedTime());
         assertEquals(expectedReport.getHighestMarginProduct(), actualReport.getHighestMarginProduct());

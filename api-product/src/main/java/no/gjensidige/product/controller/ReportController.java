@@ -23,6 +23,6 @@ public class ReportController {
 
     @GetMapping(value = "/financial")
     public FinancialReport getFinancialReport(){
-        return reportService.createFinancialReport();
+        return reportService.generateFinancialReport();
     }
 }
