@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -15,6 +14,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 public class ReportControllerTest {
 
@@ -26,24 +26,25 @@ public class ReportControllerTest {
 
     @Before
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        openMocks(this);
     }
 
     @Test
     public void getFinancialReport(){
         Set<String> uniqueNames = new HashSet<>(Arrays.asList("Larry", "Steve", "James"));
+        List<String> names = new ArrayList<>(uniqueNames);
         List<Product> productList = new ArrayList<>();
-        uniqueNames.forEach(name ->
-        {
+        for(int i = 0; i<uniqueNames.size(); i++) {
             Product p = new Product();
-            p.setProductName(name);
-            p.setNumberSold(BigInteger.valueOf(200));
-            p.setUnitPrice(55.50);
-            p.setUnitCost(10.50);
+            p.setProductName(names.get(i));
+            p.setNumberSold(BigInteger.valueOf(200L * (i + 1)));
+            p.setUnitPrice(55.50 + (i * 10));
+            p.setUnitCost(10.50 + (i * 10));
             productList.add(p);
-        });
+        }
 
-        Product product = productList.get(0);
+        Product leastSoldProduct = productList.get(0);
+        Product mostSoldProduct = productList.get(2);
 
         Double expectedTotalTurnover =
                 productList.stream().mapToDouble(p -> p.getNumberSold().doubleValue() * p.getUnitPrice()).sum();
@@ -54,10 +55,10 @@ public class ReportControllerTest {
         Double expectedTotalMargin = expectedTotalTurnover - expectedTotalCost;
 
         FinancialReport expectedReport = new FinancialReport();
-        expectedReport.setHighestMarginProduct(product);
-        expectedReport.setLeastSoldProduct(product);
-        expectedReport.setMostSoldProduct(product);
-        expectedReport.setLowestMarginProduct(product);
+        expectedReport.setHighestMarginProduct(mostSoldProduct);
+        expectedReport.setLeastSoldProduct(leastSoldProduct);
+        expectedReport.setMostSoldProduct(mostSoldProduct);
+        expectedReport.setLowestMarginProduct(leastSoldProduct);
         expectedReport.setTotalCost(expectedTotalCost);
         expectedReport.setTotalMargin(expectedTotalMargin);
         expectedReport.setTotalTurnover(expectedTotalTurnover);
@@ -70,5 +71,6 @@ public class ReportControllerTest {
 
         assertEquals(expectedReport.getCreatedTime(), actualReport.getCreatedTime());
         assertEquals(expectedReport.getHighestMarginProduct(), actualReport.getHighestMarginProduct());
+        assertEquals(expectedReport.getLeastSoldProduct(), actualReport.getLeastSoldProduct());
     }
 }

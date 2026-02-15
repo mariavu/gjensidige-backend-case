@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -15,6 +14,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 
 public class ProductControllerTest {
@@ -28,7 +28,7 @@ public class ProductControllerTest {
 
     @Before
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        openMocks(this);
     }
 
     @Test
